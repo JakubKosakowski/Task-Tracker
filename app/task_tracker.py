@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Any, Dict, NamedTuple, List
 
-from app import DB_READ_ERROR
+from app import DB_READ_ERROR, ID_ERROR
 from app.database import DatabaseHandler
 
 class CurrentTodo(NamedTuple):
@@ -31,3 +31,15 @@ class Todoer:
     def get_todo_list(self) -> List[Dict[str, Any]]:
         read = self._db_handler.read_todos()
         return read.todo_list
+    
+    def set_done(self, todo_id: int) -> CurrentTodo:
+        read = self._db_handler.read_todos()
+        if read.error:
+            return CurrentTodo({}, read.error)
+        try:
+            todo = read.todo_list[todo_id - 1]
+        except IndexError:
+            return CurrentTodo({}, ID_ERROR)
+        todo['Done'] = True
+        write = self._db_handler.write_todos(read.todo_list)
+        return CurrentTodo(todo, write.error)
