@@ -19,19 +19,19 @@ def init(
     app_init_error = config.init_app(db_path)
     if app_init_error:
         typer.secho(
-            f'Createing config file failed with {ERRORS[app_init_error]}',
+            f'Creating config file failed with "{ERRORS[app_init_error]}"',
             fg=typer.colors.RED,
         )
         raise typer.Exit(1)
     db_init_error = database.init_database(Path(db_path))
     if db_init_error:
         typer.secho(
-            f'Createing database failed with {ERRORS[db_init_error]}',
+            f'Creating database failed with "{ERRORS[db_init_error]}"',
             fg=typer.colors.RED,
         )
         raise typer.Exit(1)
     else:
-        typer.secho(f'The to-do database is {db_path}', fg=typer.colors.GREEN)
+        typer.secho(f"The to-do database is {db_path}", fg=typer.colors.GREEN)
 
 def _version_callback(value: bool) -> None:
     if value:
