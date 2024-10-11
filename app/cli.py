@@ -1,9 +1,11 @@
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import typer
 
-from app import ERRORS, __app_name__, __version__, config, database
+from app import(
+    ERRORS, __app_name__, __version__, config, database, task_tracker
+    )
 
 app = typer.Typer()
 
@@ -32,6 +34,43 @@ def init(
         raise typer.Exit(1)
     else:
         typer.secho(f"The to-do database is {db_path}", fg=typer.colors.GREEN)
+
+def get_todoer() -> task_tracker.Todoer:
+    if config.CONFIG_FILE_PATH.exists():
+        db_path = database.get_database_path(config.CONFIG_FILE_PATH)
+    else:
+        typer.secho(
+            'Config file not found. Please, run "app init"',
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(1)
+    if db_path.exists():
+        return task_tracker.Todoer(db_path)
+    else:
+        typer.secho(
+            'Database not found. Please, run "app init"',
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(1)
+    
+@app.command()
+def add(
+    description: List[str] = typer.Argument(...),
+    priority: int = typer.Option(2, "--priority", "-p", min=1, max=3),
+) -> None:
+    todoer = get_todoer()
+    todo, error = todoer.add(description, priority)
+    if error:
+        typer.secho(
+            f'Adding to-do failed with "{ERRORS[error]}"', fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    else:
+        typer.secho(
+            f"""to-do: "{todo['Description']}" was added """
+            f"""with priority: {priority}""",
+            fg=typer.colors.GREEN,
+        )
 
 def _version_callback(value: bool) -> None:
     if value:
