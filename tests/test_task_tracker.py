@@ -21,7 +21,7 @@ def test_version():
 
 @pytest.fixture
 def mock_json_file(tmp_path):
-    todo = [{'Description': 'Get some milk.', 'Property': 2, 'Done': False}]
+    todo = [{'Description': 'Get some milk.', 'Property': 2, 'Status': "To Do"}]
     db_file = tmp_path / 'todo.json'
     with db_file.open('w') as db:
         json.dump(todo, db, indent=4)
@@ -33,7 +33,7 @@ test_data1 = {
     "todo": {
         "Description": "Clean the house.",
         "Priority": 1,
-        "Done": False,
+        "Status": "To Do",
     },
 }
 test_data2 = {
@@ -42,7 +42,7 @@ test_data2 = {
     "todo": {
         "Description": "Wash the car.",
         "Priority": 2,
-        "Done": False,
+        "Status": "To Do",
     },
 }
 
@@ -70,7 +70,7 @@ def test_add(mock_json_file, description, priority, expected):
 
 @pytest.fixture
 def misspell_json_file(tmp_path):
-    todo = [{'Description': 'Get some milk 3.', 'Priority': 2, 'Done': False}]
+    todo = [{'Description': 'Get some milk 3.', 'Priority': 2, "Status": "To Do"}]
     db_file = tmp_path / 'todo.json'
     with db_file.open('w') as db:
         json.dump(todo, db, indent=4)
@@ -82,7 +82,7 @@ test_data1 = {
     "todo": {
         "Description": "Get some milk.",
         "Priority": 2,
-        "Done": False
+        "Status": "To Do"
     },
 }
 
@@ -101,3 +101,4 @@ def test_update(misspell_json_file, todo_id, description, expected):
     assert todoer.update(todo_id, description) == expected
     read = todoer._db_handler.read_todos()
     assert len(read.todo_list) == 1
+
