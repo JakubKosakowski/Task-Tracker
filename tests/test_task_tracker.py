@@ -21,7 +21,7 @@ def test_version():
 
 @pytest.fixture
 def mock_json_file(tmp_path):
-    todo = [{'Description': 'Get some milk.', 'Property': 2, 'Status': "To Do"}]
+    todo = [{'Description': 'Get some milk.', 'Property': 2, 'Status': "Todo"}]
     db_file = tmp_path / 'todo.json'
     with db_file.open('w') as db:
         json.dump(todo, db, indent=4)
@@ -33,7 +33,7 @@ test_data1 = {
     "todo": {
         "Description": "Clean the house.",
         "Priority": 1,
-        "Status": "To Do",
+        "Status": "Todo",
     },
 }
 test_data2 = {
@@ -42,7 +42,7 @@ test_data2 = {
     "todo": {
         "Description": "Wash the car.",
         "Priority": 2,
-        "Status": "To Do",
+        "Status": "Todo",
     },
 }
 
@@ -70,7 +70,7 @@ def test_add(mock_json_file, description, priority, expected):
 
 @pytest.fixture
 def misspell_json_file(tmp_path):
-    todo = [{'Description': 'Get some milk 3.', 'Priority': 2, "Status": "To Do"}]
+    todo = [{'Description': 'Get some milk 3.', 'Priority': 2, "Status": "Todo"}]
     db_file = tmp_path / 'todo.json'
     with db_file.open('w') as db:
         json.dump(todo, db, indent=4)
@@ -82,7 +82,7 @@ test_data1 = {
     "todo": {
         "Description": "Get some milk.",
         "Priority": 2,
-        "Status": "To Do"
+        "Status": "Todo"
     },
 }
 

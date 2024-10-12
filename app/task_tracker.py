@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Any, Dict, NamedTuple, List
 
-from app import DB_READ_ERROR, ID_ERROR
+from app import DB_READ_ERROR, ID_ERROR, SUCCESS
 from app.database import DatabaseHandler
 
 class CurrentTodo(NamedTuple):
@@ -19,7 +19,7 @@ class Todoer:
         todo = {
             "Description": description_text,
             "Priority": priority,
-            "Status": "To Do"
+            "Status": "Todo"
         }
         read = self._db_handler.read_todos()
         if read.error == DB_READ_ERROR:
@@ -43,9 +43,16 @@ class Todoer:
         write = self._db_handler.write_todos(read.todo_list)
         return CurrentTodo(todo, write.error)
     
-    def get_todo_list(self) -> List[Dict[str, Any]]:
+    def get_todo_list(self, filter: str) -> List[Dict[str, Any]]:
         read = self._db_handler.read_todos()
-        return read.todo_list
+        if filter == '':
+            return read.todo_list
+        try:
+            todo_list = [read.todo_list[x] for x in range(len(read.todo_list))
+                        if read.todo_list[x]['Status'] == filter.capitalize()]
+        except IndexError:
+            return CurrentTodo({}, ID_ERROR)
+        return todo_list
     
     def change_status(self, todo_id: int, status: str) -> CurrentTodo:
         read = self._db_handler.read_todos()
@@ -58,19 +65,7 @@ class Todoer:
         todo['Status'] = status
         write = self._db_handler.write_todos(read.todo_list)
         return CurrentTodo(todo, write.error)
-    
-    # def set_done(self, todo_id: int) -> CurrentTodo:
-    #     read = self._db_handler.read_todos()
-    #     if read.error:
-    #         return CurrentTodo({}, read.error)
-    #     try:
-    #         todo = read.todo_list[todo_id - 1]
-    #     except IndexError:
-    #         return CurrentTodo({}, ID_ERROR)
-    #     todo['Done'] = True
-    #     write = self._db_handler.write_todos(read.todo_list)
-    #     return CurrentTodo(todo, write.error)
-    
+
     def remove(self, todo_id: int) -> CurrentTodo:
         read = self._db_handler.read_todos()
         if read.error:

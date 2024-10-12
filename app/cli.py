@@ -90,10 +90,18 @@ def update(
             fg=typer.colors.YELLOW
         )
 
-@app.command(name="list")
-def list_all() -> None:
+@app.command()
+def list(
+    filter: str = typer.Argument('')
+) -> None:
     todoer = get_todoer()
-    todo_list = todoer.get_todo_list()
+    todo_list = todoer.get_todo_list(filter)
+    if not filter in ['todo', 'in-process', 'done', '']:
+        typer.secho(
+            f'Invalid status type(available: "todo", "in-process", "done"). Try again.',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
     if len(todo_list) == 0:
         typer.secho(
             "There are no tasks in the to-do list yet", fg=typer.colors.RED
@@ -103,7 +111,7 @@ def list_all() -> None:
     columns = (
         "ID.  ",
         "| Priority  ",
-        "| Status  ",
+        "| Status     ",
         "| Description  ",
     )
     headers = "".join(columns)
@@ -134,9 +142,9 @@ def change_status(
             fg=typer.colors.RED
         )
         raise typer.Exit(1)
-    if not status in ['To-do', 'In-process', 'Done']:
+    if not status in ['Todo', 'In-process', 'Done']:
         typer.secho(
-            f'Invalid status type(available: "to-do", "in-process", "done"). Try again.',
+            f'Invalid status type(available: "todo", "in-process", "done"). Try again.',
             fg=typer.colors.RED
         )
         raise typer.Exit(1)
