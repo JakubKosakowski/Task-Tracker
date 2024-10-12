@@ -54,3 +54,7 @@ class Todoer:
             return CurrentTodo({}, ID_ERROR)
         write = self._db_handler.write_todos(read.todo_list)
         return CurrentTodo(todo, write.error)
+
+    def remove_all(self) -> CurrentTodo:
+        write = self._db_handler.write_todos([])
+        return CurrentTodo({}, write.error)
