@@ -72,10 +72,36 @@ def add(
             fg=typer.colors.GREEN,
         )
 
-@app.command(name="list")
-def list_all() -> None:
+@app.command()
+def update(
+    todo_id: int,
+    description: List[str] = typer.Argument(...)
+) -> None:
     todoer = get_todoer()
-    todo_list = todoer.get_todo_list()
+    todo, error = todoer.update(todo_id, description)
+    if error:
+        typer.secho(
+            f'Updating to-do failed with "{ERRORS[error]}"', fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    else:
+        typer.secho(
+            f"""to-do #{todo_id} {todo['Description']} was updated.""",
+            fg=typer.colors.YELLOW
+        )
+
+@app.command()
+def list(
+    filter: str = typer.Argument('')
+) -> None:
+    todoer = get_todoer()
+    todo_list = todoer.get_todo_list(filter)
+    if not filter in ['todo', 'in-process', 'done', '']:
+        typer.secho(
+            f'Invalid status type(available: "todo", "in-process", "done"). Try again.',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
     if len(todo_list) == 0:
         typer.secho(
             "There are no tasks in the to-do list yet", fg=typer.colors.RED
@@ -85,37 +111,47 @@ def list_all() -> None:
     columns = (
         "ID.  ",
         "| Priority  ",
-        "| Done  ",
+        "| Status     ",
         "| Description  ",
     )
     headers = "".join(columns)
     typer.secho(headers, fg=typer.colors.BLUE, bold=True)
     typer.secho("-" * len(headers), fg=typer.colors.BLUE)
     for id, todo in enumerate(todo_list, 1):
-        desc, priority, done = todo.values()
+        desc, priority, status = todo.values()
         typer.secho(
             f"{id}{(len(columns[0]) - len(str(id))) * ' '}"
             f"| ({priority}){(len(columns[1]) - len(str(priority)) - 4) * ' '}"
-            f"| {done}{(len(columns[2]) - len(str(done)) - 2) * ' '}"
+            f"| {status}{(len(columns[2]) - len(str(status)) - 2) * ' '}"
             f"| {desc}",
             fg=typer.colors.BLUE,
         )
     typer.secho("-" * len(headers) + "\n", fg=typer.colors.BLUE)
 
-@app.command(name="complete")
-def set_done(todo_id: int = typer.Argument(...)) -> None:
+@app.command(name="status")
+def change_status(
+    todo_id: int,
+    status: List[str] = typer.Argument(...)
+) -> None:
     todoer = get_todoer()
-    todo, error = todoer.set_done(todo_id)
+    status = ' '.join(status).capitalize()
+    todo, error = todoer.change_status(todo_id, status)
     if error:
         typer.secho(
-            f'Completing to-do # "{todo_id}" failing with "{ERRORS[error]}"',
+            f'Changing status to-do # "{todo_id}" failing with "{ERRORS[error]}"',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    if not status in ['Todo', 'In-process', 'Done']:
+        typer.secho(
+            f'Invalid status type(available: "todo", "in-process", "done"). Try again.',
             fg=typer.colors.RED
         )
         raise typer.Exit(1)
     else:
         typer.secho(
-            f"""to-do # {todo_id} "{todo['Description']}" completed!""",
-            fg=typer.colors.GREEN,
+            f"""Status to-do # {todo_id} changed to '{todo['Status']}'""",
+            fg=typer.colors.GREEN
         )
 
 @app.command()
