@@ -28,6 +28,21 @@ class Todoer:
         write = self._db_handler.write_todos(read.todo_list)
         return CurrentTodo(todo, write.error)
     
+    def update(self, todo_id: int, description: List[str]) -> CurrentTodo:
+        description_text = " ".join(description)
+        if not description_text.endswith('.'):
+            description_text += '.'
+        read = self._db_handler.read_todos()
+        if read.error:
+            return CurrentTodo({}, read.error)
+        try:
+            todo = read.todo_list[todo_id - 1]
+        except IndexError:
+            return CurrentTodo({}, ID_ERROR)
+        todo["Description"] = description_text
+        write = self._db_handler.write_todos(read.todo_list)
+        return CurrentTodo(todo, write.error)
+    
     def get_todo_list(self) -> List[Dict[str, Any]]:
         read = self._db_handler.read_todos()
         return read.todo_list

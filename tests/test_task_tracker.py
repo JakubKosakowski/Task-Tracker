@@ -70,7 +70,7 @@ def test_add(mock_json_file, description, priority, expected):
 
 @pytest.fixture
 def misspell_json_file(tmp_path):
-    todo = [{'Description': 'Get some milk 3.', 'Property': 2, 'Done': False}]
+    todo = [{'Description': 'Get some milk 3.', 'Priority': 2, 'Done': False}]
     db_file = tmp_path / 'todo.json'
     with db_file.open('w') as db:
         json.dump(todo, db, indent=4)

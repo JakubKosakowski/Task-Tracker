@@ -72,6 +72,24 @@ def add(
             fg=typer.colors.GREEN,
         )
 
+@app.command()
+def update(
+    todo_id: int,
+    description: List[str] = typer.Argument(...)
+) -> None:
+    todoer = get_todoer()
+    todo, error = todoer.update(todo_id, description)
+    if error:
+        typer.secho(
+            f'Updating to-do failed with "{ERRORS[error]}"', fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    else:
+        typer.secho(
+            f"""to-do #{todo_id} was updated.""",
+            fg=typer.colors.YELLOW
+        )
+
 @app.command(name="list")
 def list_all() -> None:
     todoer = get_todoer()
